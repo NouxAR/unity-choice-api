@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const mysql = require('mysql2');
+const mongoose = require('mongoose');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -10,39 +10,36 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// 🔌 MySQL bağlantısı
-const connection = mysql.createConnection({
-  host: 'mysql.railway.internal',  // ← senin HOST
-  user: 'root',                                 // ← senin USER
-  password: 'THMcCZFrCtNPkDtbvWmYOUezBjFBSPQw',               // ← senin PASSWORD
-  database: 'railway',                          // ← DATABASE ADI
-  port: 3306                                     // ← Railway genelde 3306 verir
+// MongoDB bağlantısı
+mongoose.connect('MONGODB_URL_BURAYA', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+}).then(() => console.log("✅ MongoDB bağlantısı başarılı!"))
+  .catch(err => console.error("❌ MongoDB bağlantı hatası:", err));
+
+// Şema & Model
+const choiceSchema = new mongoose.Schema({
+  key: String,
+  value: String,
+  createdAt: { type: Date, default: Date.now }
 });
 
-// Veritabanına bağlan
-connection.connect(err => {
-  if (err) {
-    console.error('❌ Veritabanına bağlanılamadı:', err);
-  } else {
-    console.log('✅ MySQL bağlantısı başarılı!');
-  }
-});
+const Choice = mongoose.model('Choice', choiceSchema);
 
 // API endpoint
-app.post('/api/save', (req, res) => {
+app.post('/api/save', async (req, res) => {
   const { key, value } = req.body;
 
   if (!key || !value) {
     return res.status(400).send('Eksik veri');
   }
 
-  const query = 'INSERT INTO choices (`key`, `value`) VALUES (?, ?)';
-  connection.query(query, [key, value], (err, results) => {
-    if (err) {
-      console.error('MySQL hatası:', err);
-      return res.status(500).send('Veritabanı hatası');
-    }
-
-    res.status(200).send('Veri başarıyla kaydedildi.');
-  });
+  try {
+    const newChoice = new Choice({ key, value });
+    await newChoice.save();
+    res.status(200).send('Veri MongoDB’ye kaydedildi.');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('MongoDB kayıt hatası');
+  }
 });
