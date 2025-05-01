@@ -12,9 +12,9 @@ app.use(bodyParser.json());
 
 // 🔌 MySQL bağlantısı
 const connection = mysql.createConnection({
-  host: 'containers-us-west-XXX.railway.app',  // ← senin HOST
+  host: 'mysql.railway.internal',  // ← senin HOST
   user: 'root',                                 // ← senin USER
-  password: 'ŞİFRENİ_BURAYA_YAZ',               // ← senin PASSWORD
+  password: 'THMcCZFrCtNPkDtbvWmYOUezBjFBSPQw',               // ← senin PASSWORD
   database: 'railway',                          // ← DATABASE ADI
   port: 3306                                     // ← Railway genelde 3306 verir
 });
