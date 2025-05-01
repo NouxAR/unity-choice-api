@@ -30,16 +30,21 @@ const Choice = mongoose.model('Choice', choiceSchema);
 app.post('/api/save', async (req, res) => {
   const { key, value } = req.body;
 
+  console.log("📥 Gelen istek:", req.body);  // Bu satır logda görünmeli!
+
   if (!key || !value) {
+    console.log("❌ Eksik veri:", req.body);
     return res.status(400).send('Eksik veri');
   }
 
   try {
     const newChoice = new Choice({ key, value });
     await newChoice.save();
+    console.log("✅ Kaydedildi:", key, value); // Loga düşmeli
     res.status(200).send('Veri MongoDB’ye kaydedildi.');
   } catch (err) {
-    console.error(err);
+    console.error("❌ HATA:", err);
     res.status(500).send('MongoDB kayıt hatası');
   }
 });
+
