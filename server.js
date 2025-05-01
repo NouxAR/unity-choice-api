@@ -47,4 +47,6 @@ app.post('/api/save', async (req, res) => {
     res.status(500).send('MongoDB kayıt hatası');
   }
 });
-
+app.listen(port, () => {
+  console.log(`🚀 Sunucu çalışıyor: http://localhost:${port}`);
+});
