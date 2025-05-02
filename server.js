@@ -6,6 +6,17 @@ const mongoose = require('mongoose');
 const app = express();
 const port = process.env.PORT || 3000;
 
+const dialogSchema = new mongoose.Schema({
+  scene: String,
+  character: String,
+  type: String,
+  line: String,
+  choices: [String],
+  order: Number
+});
+
+const Dialog = mongoose.model('Dialog', dialogSchema);
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -58,5 +69,18 @@ app.get('/api/last3', async (req, res) => {
   } catch (err) {
     console.error("Son 3 seçim çekilemedi:", err);
     res.status(500).send("MongoDB'den veri alınamadı");
+  }
+});
+
+app.get('/api/dialog/:scene', async (req, res) => {
+  try {
+    const sceneName = req.params.scene;
+
+    const dialogs = await Dialog.find({ scene: sceneName }).sort({ order: 1 });
+
+    res.json(dialogs);
+  } catch (err) {
+    console.error("❌ Diyalog çekme hatası:", err);
+    res.status(500).send("MongoDB'den diyalog alınamadı.");
   }
 });
