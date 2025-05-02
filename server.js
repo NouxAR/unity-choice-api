@@ -84,8 +84,3 @@ app.get('/api/dialog/:scene', async (req, res) => {
     res.status(500).send("MongoDB'den diyalog alınamadı.");
   }
 });
-
-app.get('/api/dialog', async (req, res) => {
-  const allDialogs = await Dialog.find({});
-  res.json(allDialogs);
-});
