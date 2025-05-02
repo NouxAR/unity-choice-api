@@ -13,9 +13,9 @@ const dialogSchema = new mongoose.Schema({
   line: String,
   choices: [String],
   order: Number
-});
+}, { collection: 'Dialog' }); // 👈 BU KISIM ÇOK KRİTİK
 
-const Dialog = mongoose.model('Dialog', dialogSchema);
+const Dialog = mongoose.model("Dialog", dialogSchema);
 
 app.use(cors());
 app.use(express.json());
