@@ -13,7 +13,7 @@ const dialogSchema = new mongoose.Schema({
   line: String,
   choices: [String],
   order: Number
-}, { collection: 'Dialog' }); // 👈 BU KISIM ÇOK KRİTİK
+}, { collection: 'choices' }); // 👈 BU KISIM ÇOK KRİTİK
 
 const Dialog = mongoose.model("Dialog", dialogSchema);
 
