@@ -50,3 +50,13 @@ app.post('/api/save', async (req, res) => {
 app.listen(port, () => {
   console.log(`🚀 Sunucu çalışıyor: http://localhost:${port}`);
 });
+
+app.get('/api/last3', async (req, res) => {
+  try {
+    const lastChoices = await Choice.find().sort({ createdAt: -1 }).limit(3);
+    res.json(lastChoices);
+  } catch (err) {
+    console.error("Son 3 seçim çekilemedi:", err);
+    res.status(500).send("MongoDB'den veri alınamadı");
+  }
+});
