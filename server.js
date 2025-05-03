@@ -84,11 +84,12 @@ app.get('/api/dialog/:scene', async (req, res) => {
     res.status(500).send("MongoDB'den diyalog alınamadı.");
   }
 });
-app.delete('/api/delete-all-choices', async (req, res) => {
+app.get('/api/delete-all-choices', async (req, res) => {
     try {
         await Choice.deleteMany({});
         res.status(200).send("✅ Tüm seçim verileri silindi.");
     } catch (err) {
-        res.status(500).send("❌ Silme hatası:", err);
+        console.error("Silme hatası:", err);
+        res.status(500).send("❌ Silme hatası");
     }
 });
