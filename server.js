@@ -93,3 +93,27 @@ app.get('/api/delete-all-choices', async (req, res) => {
         res.status(500).send("❌ Silme hatası");
     }
 });
+
+app.post('/api/input', async (req, res) => {
+  try {
+    const { scene, input, character, order } = req.body;
+
+    if (!scene || !input || !character || order == null) {
+      return res.status(400).json({ error: "Eksik veri var." });
+    }
+
+    const newEntry = {
+      scene,
+      input,
+      character,
+      order,
+      timestamp: new Date()
+    };
+
+    await db.collection("userInputs").insertOne(newEntry);
+    res.status(200).json({ message: "Yanıt kaydedildi." });
+  } catch (err) {
+    console.error("Input kayıt hatası:", err);
+    res.status(500).json({ error: "Sunucu hatası" });
+  }
+});
