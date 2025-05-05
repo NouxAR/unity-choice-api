@@ -2,6 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
+let db;
+const db = mongoose.connection;
 
 const app = express();
 const port = process.env.PORT || 3000;
