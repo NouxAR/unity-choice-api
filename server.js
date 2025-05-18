@@ -106,3 +106,29 @@ app.post('/api/input', async (req, res) => {
     res.status(500).json({ error: "Sunucu hatası" });
   }
 });
+
+const taskSchema = new mongoose.Schema({
+  key: String,
+  value: Boolean
+});
+const Task = mongoose.model('Task', taskSchema);
+
+app.post('/api/update-task', async (req, res) => {
+  const { key, value } = req.body;
+
+  if (!key || value === undefined) {
+    return res.status(400).send("Eksik veri");
+  }
+
+  try {
+    await Task.findOneAndUpdate(
+      { key },
+      { value },
+      { upsert: true }
+    );
+    res.status(200).send("Görev güncellendi");
+  } catch (err) {
+    console.error("Görev güncelleme hatası:", err);
+    res.status(500).send("Sunucu hatası");
+  }
+});
