@@ -34,11 +34,16 @@ mongoose.connect('mongodb://mongo:ImupXwnzHrzcIOXZFONBDlQKZmiMkunZ@mongodb.railw
   .catch(err => console.error("❌ MongoDB bağlantı hatası:", err));
 
 // Şema & Model
+
 const choiceSchema = new mongoose.Schema({
-  key: String,
-  value: String,
-  createdAt: { type: Date, default: Date.now }
+  npc: String,
+  order: Number,
+  choice: String,
+  timestamp: Date
 });
+
+const Choice = mongoose.model('Choice', choiceSchema);
+
 
 const Choice = mongoose.model('Choice', choiceSchema);
 
