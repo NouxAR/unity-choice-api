@@ -77,17 +77,10 @@ app.get('/api/last3', async (req, res) => {
   }
 });
 
-app.get('/api/dialog/:scene', async (req, res) => {
-  try {
-    const sceneName = req.params.scene;
-
-    const dialogs = await Dialog.find({ scene: sceneName }).sort({ order: 1 });
-
-    res.json(dialogs);
-  } catch (err) {
-    console.error("❌ Diyalog çekme hatası:", err);
-    res.status(500).send("MongoDB'den diyalog alınamadı.");
-  }
+app.get('/api/dialog/:npc', async (req, res) => {
+  const npcName = req.params.npc;
+  const dialogs = await Dialog.find({ npc: npcName }).sort({ order: 1 });
+  res.json(dialogs);
 });
 app.get('/api/delete-all-choices', async (req, res) => {
     try {
