@@ -165,3 +165,13 @@ app.post('/api/save-choice', async (req, res) => {
     res.status(500).send("Hata oluştu");
   }
 });
+
+app.get('/api/dialog', async (req, res) => {
+  try {
+    const dialogs = await Dialog.find().sort({ order: 1 });
+    res.json(dialogs);
+  } catch (err) {
+    console.error("Diyaloglar alınamadı:", err);
+    res.status(500).send("Diyaloglar alınamadı");
+  }
+});
