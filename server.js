@@ -44,9 +44,6 @@ const choiceSchema = new mongoose.Schema({
 
 const Choice = mongoose.model('Choice', choiceSchema);
 
-
-const Choice = mongoose.model('Choice', choiceSchema);
-
 // API endpoint
 app.post('/api/save', async (req, res) => {
   const { key, value } = req.body;
