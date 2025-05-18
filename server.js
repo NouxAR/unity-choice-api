@@ -142,3 +142,24 @@ app.get('/api/tasks', async (req, res) => {
     res.status(500).send("Görevler alınamadı");
   }
 });
+
+app.post('/api/save-choice', async (req, res) => {
+  const { npc, order, choice } = req.body;
+
+  if (!npc || !choice || order === undefined) {
+    return res.status(400).send("Eksik veri");
+  }
+
+  try {
+    const result = await Choice.create({
+      npc,
+      order,
+      choice,
+      timestamp: new Date()
+    });
+    res.status(200).send("Kaydedildi");
+  } catch (err) {
+    console.error("Seçim kayıt hatası:", err);
+    res.status(500).send("Hata oluştu");
+  }
+});
