@@ -132,3 +132,13 @@ app.post('/api/update-task', async (req, res) => {
     res.status(500).send("Sunucu hatası");
   }
 });
+
+app.get('/api/tasks', async (req, res) => {
+  try {
+    const tasks = await Task.find();
+    res.json({ tasks }); // ✅ Unity uyumlu JSON
+  } catch (err) {
+    console.error("Görevler alınamadı:", err);
+    res.status(500).send("Görevler alınamadı");
+  }
+});
