@@ -8,13 +8,17 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 const dialogSchema = new mongoose.Schema({
-  scene: String,
-  character: String,
-  type: String,
+  npc: String,                   // 🔁 etkileşilen NPC
+  character: String,             // 🎭 konuşan karakterin ismi
+  type: String,                  // "line" veya "choice"
   line: String,
-  choices: [String],
-  order: Number
-}, { collection: 'Dialogs' }); // 👈 BU KISIM ÇOK KRİTİK
+  choices: [String],             // sadece "choice" tipi için geçerli
+  order: Number,                 // sıralama
+
+  isTaskGate: Boolean,           // görev gerektiriyor mu?
+  requiredTaskKey: String,       // görev adı
+  requiredTaskValue: Boolean     // görev durumu (true/false)
+}, { collection: 'Dialogs' });
 
 const Dialog = mongoose.model("Dialog", dialogSchema);
 
