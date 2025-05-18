@@ -67,21 +67,12 @@ app.listen(port, () => {
   console.log(`🚀 Sunucu çalışıyor: http://localhost:${port}`);
 });
 
-app.get('/api/last3', async (req, res) => {
-  try {
-    const lastChoices = await Choice.find().sort({ createdAt: -1 }).limit(3);
-    res.json(lastChoices);
-  } catch (err) {
-    console.error("Son 3 seçim çekilemedi:", err);
-    res.status(500).send("MongoDB'den veri alınamadı");
-  }
-});
-
 app.get('/api/dialog/:npc', async (req, res) => {
   const npcName = req.params.npc;
   const dialogs = await Dialog.find({ npc: npcName }).sort({ order: 1 });
   res.json(dialogs);
 });
+
 app.get('/api/delete-all-choices', async (req, res) => {
     try {
         await Choice.deleteMany({});
