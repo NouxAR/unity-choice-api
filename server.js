@@ -175,3 +175,14 @@ app.get('/api/dialog', async (req, res) => {
     res.status(500).send("Diyaloglar alınamadı");
   }
 });
+
+app.get('/api/delete-all-tasks', async (req, res) => {
+  try {
+    await Task.deleteMany({});
+    res.status(200).send("Tüm görevler silindi");
+  } catch (err) {
+    console.error("Toplu görev silme hatası:", err);
+    res.status(500).send("Sunucu hatası");
+  }
+});
+
