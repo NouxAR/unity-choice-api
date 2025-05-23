@@ -168,3 +168,20 @@ app.get('/api/delete-all-tasks', async (req, res) => {
   }
 });
 
+app.get('/api/choices/:playerId', async (req, res) => {
+  const playerId = req.params.playerId;
+
+  if (!playerId) {
+    return res.status(400).send("Eksik playerId");
+  }
+
+  try {
+    const choices = await Choice.find({ playerId }).sort({ order: 1 });
+    res.status(200).json({ choices });
+  } catch (err) {
+    console.error("Seçim verisi alınamadı:", err);
+    res.status(500).send("Sunucu hatası");
+  }
+});
+
+
