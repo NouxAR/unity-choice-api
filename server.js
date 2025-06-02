@@ -7,6 +7,20 @@ const db = mongoose.connection;
 const app = express();
 const port = process.env.PORT || 3000;
 
+const singleChoiceSchema = new mongoose.Schema({
+  npc: String,
+  order: Number,
+  choice: String
+});
+
+const batchChoiceSchema = new mongoose.Schema({
+  playerId: String,
+  timestamp: String,
+  choices: [singleChoiceSchema]
+});
+
+const BatchChoice = mongoose.model('BatchChoice', batchChoiceSchema);
+
 const dialogSchema = new mongoose.Schema({
   npc: String,                   // 🔁 etkileşilen NPC
   character: String,             // 🎭 konuşan karakterin ismi
@@ -183,5 +197,22 @@ app.get('/api/choices/:playerId', async (req, res) => {
     res.status(500).send("Sunucu hatası");
   }
 });
+
+app.post('/api/upload-choices', async (req, res) => {
+  const { playerId, timestamp, choices } = req.body;
+
+  if (!playerId || !timestamp || !choices || !Array.isArray(choices)) {
+    return res.status(400).send("❌ Eksik veya hatalı veri");
+  }
+
+  try {
+    await BatchChoice.create({ playerId, timestamp, choices });
+    res.status(200).send("✅ Tüm seçimler tek belge olarak yüklendi.");
+  } catch (err) {
+    console.error("Mongo yükleme hatası:", err);
+    res.status(500).send("❌ MongoDB kayıt hatası");
+  }
+});
+
 
 
