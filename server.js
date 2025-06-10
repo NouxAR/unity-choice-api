@@ -40,22 +40,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-mongoose.connect('mongodb://mongo:ImupXwnzHrzcIOXZFONBDlQKZmiMkunZ@mongodb.railway.internal:27017', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => {
-  console.log("✅ MongoDB bağlantısı başarılı!");
+mongoose.connect(...).then(() => console.log("✅ MongoDB bağlantısı başarılı!"));
 
-  // ✅ Bağlantı kurulduktan sonra sunucuyu başlat
-  app.listen(port, () => {
-    console.log(`🚀 Sunucu çalışıyor: http://localhost:${port}`);
-  });
-})
-.catch(err => {
-  console.error("❌ MongoDB bağlantı hatası:", err);
+app.listen(port, () => {
+  console.log(`🚀 Sunucu çalışıyor: http://localhost:${port}`);
 });
-
 // Şema & Model
 
 const choiceSchema = new mongoose.Schema({
