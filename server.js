@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const db = mongoose.connection;
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 
 const singleChoiceSchema = new mongoose.Schema({
   npc: String,
