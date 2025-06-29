@@ -213,7 +213,7 @@ app.post('/api/upload-choices', async (req, res) => {
   }
 });
 
-app.delete('/api/delete-batchchoices', async (req, res) => {
+app.get('/api/delete-batchchoices', async (req, res) => {
   try {
     await BatchChoice.deleteMany({});
     res.status(200).send("✅ Tüm batchChoices kayıtları silindi.");
