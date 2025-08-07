@@ -7,6 +7,13 @@ const db = mongoose.connection;
 const app = express();
 const port = process.env.PORT || 5000;
 
+const userSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true },
+  password: { type: String, required: true }
+});
+
+const User = mongoose.model("User", userSchema);
+
 const singleChoiceSchema = new mongoose.Schema({
   npc: String,
   order: Number,
@@ -220,6 +227,49 @@ app.get('/api/delete-batchchoices', async (req, res) => {
   } catch (err) {
     console.error("Batch silme hatası:", err);
     res.status(500).send("❌ Silme hatası");
+  }
+});
+
+app.post('/api/register', async (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).send("Kullanıcı adı ve şifre gerekli");
+  }
+
+  try {
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.status(409).send("❌ Bu kullanıcı adı zaten alınmış.");
+    }
+
+    const newUser = new User({ username, password }); // ⚠ Şifreyi hashlemen önerilir
+    await newUser.save();
+    res.status(200).send("✅ Kayıt başarılı");
+  } catch (err) {
+    console.error("Kayıt hatası:", err);
+    res.status(500).send("Sunucu hatası");
+  }
+});
+
+app.post('/api/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).send("Kullanıcı adı ve şifre gerekli");
+  }
+
+  try {
+    const user = await User.findOne({ username });
+
+    if (!user || user.password !== password) {
+      return res.status(401).send("❌ Kullanıcı adı veya şifre hatalı");
+    }
+
+    res.status(200).json({ message: "✅ Giriş başarılı", username });
+  } catch (err) {
+    console.error("Giriş hatası:", err);
+    res.status(500).send("Sunucu hatası");
   }
 });
 
