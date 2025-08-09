@@ -9,7 +9,8 @@ const port = process.env.PORT || 5000;
 
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
-  password: { type: String, required: true }
+  password: { type: String, required: true },
+  reportPdfLink: { type: String, default: null }
 });
 
 const User = mongoose.model("User", userSchema);
@@ -266,12 +267,17 @@ app.post('/api/login', async (req, res) => {
       return res.status(401).send("❌ Kullanıcı adı veya şifre hatalı");
     }
 
-    res.status(200).json({ message: "✅ Giriş başarılı", username });
+      return res.status(200).json({
+    message: "Giriş başarılı",
+    username: user.username,
+    reportPdfLink: user.reportPdfLink // null veya mevcut link
+  });
   } catch (err) {
     console.error("Giriş hatası:", err);
     res.status(500).send("Sunucu hatası");
   }
 });
+
 
 
 
