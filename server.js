@@ -278,6 +278,41 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
+app.post('/api/update-report', async (req, res) => {
+  const { username, reportPdfLink } = req.body;
+
+  if (!username || !reportPdfLink) {
+    return res.status(400).send("❌ username ve reportPdfLink gerekli");
+  }
+
+  try {
+    const updated = await User.findOneAndUpdate(
+      { username },
+      { 
+        $set: { 
+          reportPdfLink, 
+          reportGeneratedAt: new Date() // opsiyonel yeni tarih alanı
+        } 
+      },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).send("❌ Kullanıcı bulunamadı");
+    }
+
+    res.status(200).json({
+      message: "✅ Rapor linki güncellendi",
+      user: updated
+    });
+  } catch (err) {
+    console.error("Update hatası:", err);
+    res.status(500).send("❌ Sunucu hatası");
+  }
+});
+
+
+
 
 
 
