@@ -190,14 +190,14 @@ app.get('/api/delete-all-tasks', async (req, res) => {
 });
 
 app.get('/api/choices/:username', async (req, res) => {
-  const playerId = req.params.playerId;
+  const username = req.params.playerId;
 
   if (!playerId) {
-    return res.status(400).send("Eksik playerId");
+    return res.status(400).send("Eksik username");
   }
 
   try {
-    const choices = await Choice.find({ playerId }).sort({ order: 1 });
+    const choices = await Choice.find({ username }).sort({ order: 1 });
     res.status(200).json({ choices });
   } catch (err) {
     console.error("Seçim verisi alınamadı:", err);
@@ -310,6 +310,7 @@ app.post('/api/update-report', async (req, res) => {
     res.status(500).send("❌ Sunucu hatası");
   }
 });
+
 
 
 
