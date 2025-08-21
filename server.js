@@ -22,7 +22,7 @@ const singleChoiceSchema = new mongoose.Schema({
 });
 
 const batchChoiceSchema = new mongoose.Schema({
-  playerId: String,
+  username: String,
   timestamp: String,
   choices: [singleChoiceSchema]
 });
@@ -60,7 +60,7 @@ const choiceSchema = new mongoose.Schema({
   npc: String,
   order: Number,
   choice: String,
-  playerId: String,
+  username: String,
   timestamp: Date
 });
 
@@ -68,9 +68,9 @@ const Choice = mongoose.model('Choice', choiceSchema);
 
 // API endpoint
 app.post('/api/save-choice', async (req, res) => {
-  const { npc, order, choice, playerId } = req.body;
+  const { npc, order, choice, username } = req.body;
 
-  if (!npc || !choice || order === undefined || !playerId) {
+  if (!npc || !choice || order === undefined || !username) {
     return res.status(400).send("Eksik veri");
   }
 
@@ -79,7 +79,7 @@ app.post('/api/save-choice', async (req, res) => {
       npc,
       order,
       choice,
-      playerId,
+      username,
       timestamp: new Date()
     });
     res.status(200).send("Kaydedildi");
@@ -189,7 +189,7 @@ app.get('/api/delete-all-tasks', async (req, res) => {
   }
 });
 
-app.get('/api/choices/:playerId', async (req, res) => {
+app.get('/api/choices/:username', async (req, res) => {
   const playerId = req.params.playerId;
 
   if (!playerId) {
@@ -206,14 +206,14 @@ app.get('/api/choices/:playerId', async (req, res) => {
 });
 
 app.post('/api/upload-choices', async (req, res) => {
-  const { playerId, timestamp, choices } = req.body;
+  const { username, timestamp, choices } = req.body;
 
   if (!playerId || !timestamp || !choices || !Array.isArray(choices)) {
     return res.status(400).send("❌ Eksik veya hatalı veri");
   }
 
   try {
-    await BatchChoice.create({ playerId, timestamp, choices });
+    await BatchChoice.create({ username, timestamp, choices });
     res.status(200).send("✅ Tüm seçimler tek belge olarak yüklendi.");
   } catch (err) {
     console.error("Mongo yükleme hatası:", err);
@@ -310,6 +310,7 @@ app.post('/api/update-report', async (req, res) => {
     res.status(500).send("❌ Sunucu hatası");
   }
 });
+
 
 
 
