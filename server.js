@@ -190,9 +190,9 @@ app.get('/api/delete-all-tasks', async (req, res) => {
 });
 
 app.get('/api/choices/:username', async (req, res) => {
-  const username = req.params.playerId;
+  const username = req.params.username;
 
-  if (!playerId) {
+  if (!username) {
     return res.status(400).send("Eksik username");
   }
 
@@ -310,6 +310,7 @@ app.post('/api/update-report', async (req, res) => {
     res.status(500).send("❌ Sunucu hatası");
   }
 });
+
 
 
 
