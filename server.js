@@ -208,7 +208,7 @@ app.get('/api/choices/:username', async (req, res) => {
 app.post('/api/upload-choices', async (req, res) => {
   const { username, timestamp, choices } = req.body;
 
-  if (!playerId || !timestamp || !choices || !Array.isArray(choices)) {
+  if (!username || !timestamp || !choices || !Array.isArray(choices)) {
     return res.status(400).send("❌ Eksik veya hatalı veri");
   }
 
@@ -310,6 +310,7 @@ app.post('/api/update-report', async (req, res) => {
     res.status(500).send("❌ Sunucu hatası");
   }
 });
+
 
 
 
