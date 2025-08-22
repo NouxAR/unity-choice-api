@@ -311,6 +311,39 @@ app.post('/api/update-report', async (req, res) => {
   }
 });
 
+app.post('/api/insert-user', async (req, res) => {
+  const { name, surname, email, username, password, reportPdfLink } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).send("❌ Kullanıcı adı ve şifre gerekli");
+  }
+
+  try {
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.status(409).send("❌ Bu kullanıcı adı zaten var");
+    }
+
+    const newUser = new User({
+      name: name || null,
+      surname: surname || null,
+      email: email || null,
+      username,
+      password, // ⚠ hashlemeyi unutma
+      reportPdfLink: reportPdfLink || null
+    });
+
+    await newUser.save();
+    res.status(200).json({ message: "✅ Kullanıcı eklendi", user: newUser });
+
+  } catch (err) {
+    console.error("Insert hatası:", err);
+    res.status(500).send("❌ Sunucu hatası");
+  }
+});
+
+
+
 
 
 
