@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   reportPdfLink: { type: String, default: null }
-});
+}, { strict: false });
 
 const User = mongoose.model("User", userSchema);
 
@@ -341,6 +341,7 @@ app.post('/api/insert-user', async (req, res) => {
     res.status(500).send("❌ Sunucu hatası");
   }
 });
+
 
 
 
