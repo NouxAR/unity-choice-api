@@ -341,6 +341,19 @@ app.post('/api/insert-user', async (req, res) => {
     res.status(500).send("❌ Sunucu hatası");
   }
 });
+// server.js
+app.get('/api/user-report/:username', async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.params.username });
+    if (!user || !user.reportPdfLink) {
+      return res.status(404).json({ error: "Rapor bulunamadı" });
+    }
+    res.json({ reportLink: user.reportPdfLink });
+  } catch (err) {
+    res.status(500).json({ error: "Sunucu hatası" });
+  }
+});
+
 
 
 
