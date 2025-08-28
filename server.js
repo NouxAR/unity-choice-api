@@ -400,22 +400,42 @@ app.post(
   }
 );
 
+const { createClient } = require("@supabase/supabase-js");
 
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_KEY
+);
 
+app.post("/api/upload-report-raw", express.raw({ type: "application/pdf", limit: "10mb" }), async (req, res) => {
+  try {
+    const username = req.query.username || "anonim";
+    const fileName = `${username}-${Date.now()}.pdf`;
 
+    // Supabase Storage’a yükle
+    const { data, error } = await supabase.storage
+      .from("reports") // bucket adı
+      .upload(fileName, req.body, {
+        contentType: "application/pdf",
+        upsert: true
+      });
 
+    if (error) throw error;
 
+    // Public link oluştur
+    const { data: publicUrl } = supabase.storage
+      .from("reports")
+      .getPublicUrl(fileName);
 
+    // MongoDB güncelle
+    await User.findOneAndUpdate(
+      { username },
+      { $set: { reportPdfLink: publicUrl.publicUrl, reportGeneratedAt: new Date() } }
+    );
 
-
-
-
-
-
-
-
-
-
-
-
-
+    res.json({ success: true, url: publicUrl.publicUrl });
+  } catch (err) {
+    console.error("🚨 Supabase upload hatası:", err);
+    res.status(500).send("❌ Sunucu hatası");
+  }
+});
