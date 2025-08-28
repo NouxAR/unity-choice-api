@@ -4,8 +4,6 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const db = mongoose.connection;
 
-npm install multer
-
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -408,6 +406,7 @@ app.post("/api/upload-report", upload.single("pdf"), async (req, res) => {
 
   res.json({ success: true, url: fileUrl, user: updated });
 });
+
 
 
 
