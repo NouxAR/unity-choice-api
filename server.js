@@ -4,6 +4,8 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const db = mongoose.connection;
 
+npm install multer
+
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -362,6 +364,49 @@ app.get('/api/user/:username', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: "Sunucu hatası" });
   }
+});
+
+app.use("/reports", express.static("public/reports"));
+
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
+
+const reportsDir = path.join(__dirname, "public/reports");
+if (!fs.existsSync(reportsDir)) {
+  fs.mkdirSync(reportsDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: reportsDir,
+  filename: (req, file, cb) => {
+    const uniqueName = `${req.body.username}-${Date.now()}.pdf`;
+    cb(null, uniqueName);
+  }
+});
+const upload = multer({ storage });
+
+app.post("/api/upload-report", upload.single("pdf"), async (req, res) => {
+  if (!req.file || !req.body.username) {
+    return res.status(400).send("❌ username ve pdf gerekli");
+  }
+
+  const fileUrl = `https://unity-choice-api-production-8a70.up.railway.app/reports/${req.file.filename}`;
+
+  const updated = await User.findOneAndUpdate(
+    { username: req.body.username },
+    { 
+      $set: { 
+        reportPdfLink: fileUrl, 
+        reportGeneratedAt: new Date() 
+      } 
+    },
+    { new: true }
+  );
+
+  if (!updated) return res.status(404).send("❌ Kullanıcı bulunamadı");
+
+  res.json({ success: true, url: fileUrl, user: updated });
 });
 
 
