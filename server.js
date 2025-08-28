@@ -364,6 +364,9 @@ app.get('/api/user/:username', async (req, res) => {
   }
 });
 
+// Public klasörünü dışarı aç
+app.use("/reports", express.static("public/reports"));
+
 app.post(
   "/api/upload-report-raw",
   express.raw({ type: "application/pdf", limit: "10mb" }),
@@ -396,6 +399,7 @@ app.post(
     }
   }
 );
+
 
 
 
