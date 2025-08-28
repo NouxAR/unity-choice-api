@@ -364,38 +364,7 @@ app.get('/api/user/:username', async (req, res) => {
   }
 });
 
-const multer = require("multer");
-const path = require("path");
 
-// Depolama ayarı: public/reports içine kaydeder
-const storage = multer.diskStorage({
-  destination: "public/reports",
-  filename: (req, file, cb) => {
-    const uniqueName = Date.now() + "-" + file.originalname;
-    cb(null, uniqueName);
-  }
-});
-
-const upload = multer({ storage });
-
-// API endpoint
-app.post("/api/upload-report", upload.single("pdf"), async (req, res) => {
-  if (!req.file) {
-    return res.status(400).send("PDF dosyası yok");
-  }
-
-  // Kalıcı erişim linki oluştur
-  const fileUrl = `https://seninsunucun.com/reports/${req.file.filename}`;
-
-  // MongoDB’ye kaydet (örnek)
-  await db.collection("reports").insertOne({
-    username: req.body.username,
-    url: fileUrl,
-    createdAt: new Date()
-  });
-
-  res.json({ success: true, url: fileUrl });
-});
 
 
 
