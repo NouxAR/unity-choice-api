@@ -346,13 +346,20 @@ app.get('/api/user-report/:username', async (req, res) => {
   try {
     const user = await User.findOne({ username: req.params.username });
     if (!user || !user.reportPdfLink) {
-      return res.status(404).json({ error: "Rapor bulunamadı" });
+      return res.status(404).json({ success: false, message: "Rapor bulunamadı" });
     }
-    res.json({ reportLink: user.reportPdfLink });
+    res.json({
+      success: true,
+      username: user.username,
+      reportLink: user.reportPdfLink,
+      generatedAt: user.reportGeneratedAt   // 👈 burayı ekledik
+    });
   } catch (err) {
-    res.status(500).json({ error: "Sunucu hatası" });
+    console.error("🚨 Rapor getirme hatası:", err);
+    res.status(500).json({ success: false, message: "Sunucu hatası" });
   }
 });
+
 
 app.get('/api/user/:username', async (req, res) => {
   try {
@@ -403,4 +410,5 @@ app.post("/api/upload-report-raw", express.raw({ type: "application/pdf", limit:
     res.status(500).send("❌ Sunucu hatası");
   }
 });
+
 
