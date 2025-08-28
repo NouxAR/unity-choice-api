@@ -364,6 +364,39 @@ app.get('/api/user/:username', async (req, res) => {
   }
 });
 
+app.post(
+  "/api/upload-report-raw",
+  express.raw({ type: "application/pdf", limit: "10mb" }),
+  async (req, res) => {
+    try {
+      const fs = require("fs");
+      const path = require("path");
+
+      const reportsDir = path.join(__dirname, "public/reports");
+      if (!fs.existsSync(reportsDir)) {
+        fs.mkdirSync(reportsDir, { recursive: true });
+      }
+
+      const fileName = `${req.query.username}-${Date.now()}.pdf`;
+      const filePath = path.join(reportsDir, fileName);
+
+      fs.writeFileSync(filePath, req.body);
+
+      const fileUrl = `https://unity-choice-api-production-8a70.up.railway.app/reports/${fileName}`;
+
+      await User.findOneAndUpdate(
+        { username: req.query.username },
+        { $set: { reportPdfLink: fileUrl, reportGeneratedAt: new Date() } }
+      );
+
+      res.json({ success: true, url: fileUrl });
+    } catch (err) {
+      console.error("🚨 PDF kaydetme hatası:", err);
+      res.status(500).send("❌ Sunucu hatası");
+    }
+  }
+);
+
 
 
 
