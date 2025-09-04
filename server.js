@@ -411,4 +411,15 @@ app.post("/api/upload-report-raw", express.raw({ type: "application/pdf", limit:
   }
 });
 
+// 🔥 Tüm kullanıcıları sil
+app.get('/api/delete-all-users', async (req, res) => {
+  try {
+    await User.deleteMany({});
+    res.status(200).send("✅ Tüm kullanıcılar silindi.");
+  } catch (err) {
+    console.error("User silme hatası:", err);
+    res.status(500).send("❌ Kullanıcılar silinemedi.");
+  }
+});
+
 
