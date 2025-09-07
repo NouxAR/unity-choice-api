@@ -515,4 +515,24 @@ app.post("/api/add-student", async (req, res) => {
   }
 });
 
+// GET /api/get-classes?username=mehmet
+app.get("/api/get-classes", async (req, res) => {
+  try {
+    const { username } = req.query;
+    if (!username) {
+      return res.status(400).json({ success: false, message: "Eksik parametre" });
+    }
+
+    const teacherInfo = await TeacherInfo.findOne({ username });
+    if (!teacherInfo) {
+      return res.json({ success: true, classes: [] });
+    }
+
+    res.json({ success: true, classes: teacherInfo.classes });
+  } catch (err) {
+    console.error("Get classes error:", err);
+    res.status(500).json({ success: false, message: "Sunucu hatası" });
+  }
+});
+
 
