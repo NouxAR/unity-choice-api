@@ -557,5 +557,29 @@ app.get("/api/get-students", async (req, res) => {
   }
 });
 
+// DELETE /api/delete-student
+app.delete("/api/delete-student", async (req, res) => {
+  try {
+    const { username, studentUsername } = req.body;
 
+    if (!username || !studentUsername) {
+      return res.status(400).json({ success: false, message: "Eksik veri" });
+    }
+
+    const teacherInfo = await TeacherInfo.findOneAndUpdate(
+      { username },
+      { $pull: { students: { username: studentUsername } } },
+      { new: true }
+    );
+
+    if (!teacherInfo) {
+      return res.status(404).json({ success: false, message: "Öğretmen bulunamadı" });
+    }
+
+    res.json({ success: true, message: "Öğrenci silindi", teacherInfo });
+  } catch (err) {
+    console.error("Delete student error:", err);
+    res.status(500).json({ success: false, message: "Sunucu hatası" });
+  }
+});
 
