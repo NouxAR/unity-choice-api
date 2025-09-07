@@ -422,4 +422,97 @@ app.get('/api/delete-all-users', async (req, res) => {
   }
 });
 
+const TeacherInfoSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true },
+  classes: [
+    {
+      name: String,
+      createdAt: Date
+    }
+  ],
+  students: [
+    {
+      name: String,
+      surname: String,
+      username: String,
+      class: String,
+      createdAt: Date
+    }
+  ]
+});
+
+const TeacherInfo = mongoose.model("TeacherInfo", TeacherInfoSchema);
+
+
+// POST /api/add-class Sınıf ekle
+app.post("/api/add-class", async (req, res) => {
+  try {
+    const { username, className } = req.body;
+
+    if (!username || !className) {
+      return res.status(400).json({ success: false, message: "Eksik veri" });
+    }
+
+    const teacherInfo = await TeacherInfo.findOneAndUpdate(
+      { username },
+      {
+        $push: {
+          classes: {
+            name: className,
+            createdAt: new Date()
+          }
+        }
+      },
+      { upsert: true, new: true }
+    );
+
+    res.json({
+      success: true,
+      message: "Sınıf başarıyla eklendi",
+      class: { name: className },
+      teacherInfo
+    });
+  } catch (err) {
+    console.error("Add class error:", err);
+    res.status(500).json({ success: false, message: "Sunucu hatası" });
+  }
+});
+
+// POST /api/add-student Öğrenci ekle
+app.post("/api/add-student", async (req, res) => {
+  try {
+    const { username, name, surname, studentUsername, className } = req.body;
+
+    if (!username || !name || !surname || !studentUsername || !className) {
+      return res.status(400).json({ success: false, message: "Eksik veri" });
+    }
+
+    const teacherInfo = await TeacherInfo.findOneAndUpdate(
+      { username },
+      {
+        $push: {
+          students: {
+            name,
+            surname,
+            username: studentUsername,
+            class: className,
+            createdAt: new Date()
+          }
+        }
+      },
+      { upsert: true, new: true }
+    );
+
+    res.json({
+      success: true,
+      message: "Öğrenci başarıyla eklendi",
+      student: { name, surname, username: studentUsername, class: className },
+      teacherInfo
+    });
+  } catch (err) {
+    console.error("Add student error:", err);
+    res.status(500).json({ success: false, message: "Sunucu hatası" });
+  }
+});
+
 
