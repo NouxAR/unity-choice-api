@@ -423,7 +423,8 @@ app.get('/api/delete-all-users', async (req, res) => {
 });
 
 const TeacherInfoSchema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true },
+  username: { type: String, required: true, unique: true }, // login username
+  fullname: { type: String },                               // opsiyonel, ekranda gösterilecek
   classes: [
     {
       name: String,
@@ -440,6 +441,7 @@ const TeacherInfoSchema = new mongoose.Schema({
     }
   ]
 });
+
 
 const TeacherInfo = mongoose.model("TeacherInfo", TeacherInfoSchema);
 
@@ -534,5 +536,6 @@ app.get("/api/get-classes", async (req, res) => {
     res.status(500).json({ success: false, message: "Sunucu hatası" });
   }
 });
+
 
 
