@@ -583,3 +583,47 @@ app.delete("/api/delete-student", async (req, res) => {
   }
 });
 
+// Türkçe karakterleri İngilizce'ye çevirme fonksiyonu
+function normalizeUsername(username) {
+  if (!username) return username;
+  const charMap = {
+    'ç': 'c', 'Ç': 'C',
+    'ğ': 'g', 'Ğ': 'G',
+    'ı': 'i', 'İ': 'I',
+    'ö': 'o', 'Ö': 'O',
+    'ş': 's', 'Ş': 'S',
+    'ü': 'u', 'Ü': 'U',
+  };
+  return username.replace(/[çÇğĞıİöÖşŞüÜ]/g, c => charMap[c] || c);
+}
+
+// 🔥 Tüm username'leri normalize et
+app.get("/api/normalize-usernames", async (req, res) => {
+  try {
+    // Users koleksiyonu
+    const users = await User.find({});
+    for (const user of users) {
+      const newUsername = normalizeUsername(user.username);
+      if (newUsername !== user.username) {
+        await User.updateOne({ _id: user._id }, { $set: { username: newUsername } });
+        console.log(`users: ${user.username} -> ${newUsername}`);
+      }
+    }
+
+    // BatchChoices koleksiyonu
+    const batchChoices = await BatchChoice.find({});
+    for (const bc of batchChoices) {
+      const newUsername = normalizeUsername(bc.username);
+      if (newUsername !== bc.username) {
+        await BatchChoice.updateOne({ _id: bc._id }, { $set: { username: newUsername } });
+        console.log(`batchchoices: ${bc.username} -> ${newUsername}`);
+      }
+    }
+
+    res.status(200).send("✅ Tüm username'ler normalize edildi.");
+  } catch (err) {
+    console.error("Normalize hatası:", err);
+    res.status(500).send("❌ Normalize sırasında hata");
+  }
+});
+
