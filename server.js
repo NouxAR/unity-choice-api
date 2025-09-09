@@ -689,3 +689,17 @@ app.post("/api/scores", async (req, res) => {
     return res.status(500).json({ success: false, message: "Sunucu hatası" });
   }
 });
+
+// --- GET /api/scores/:username  (fetch) ---
+app.get("/api/scores/:username", async (req, res) => {
+  try {
+    const doc = await Score.findOne({ username: req.params.username });
+    if (!doc) {
+      return res.status(404).json({ success: false, message: "Skor bulunamadı" });
+    }
+    return res.json({ success: true, data: doc });
+  } catch (err) {
+    console.error("GET /api/scores/:username hata:", err);
+    return res.status(500).json({ success: false, message: "Sunucu hatası" });
+  }
+});
