@@ -362,14 +362,6 @@ app.post('/api/insert-user', async (req, res) => {
   }
 });
 
-    await newUser.save();
-    res.status(200).json({ message: "✅ Kullanıcı eklendi", user: newUser });
-
-  } catch (err) {
-    console.error("Insert hatası:", err);
-    res.status(500).send("❌ Sunucu hatası");
-  }
-});
 // server.js
 app.get('/api/user-report/:username', async (req, res) => {
   try {
@@ -655,6 +647,7 @@ app.get("/api/normalize-usernames", async (req, res) => {
     res.status(500).send("❌ Normalize sırasında hata");
   }
 });
+
 
 
 
