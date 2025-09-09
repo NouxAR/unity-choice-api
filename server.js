@@ -205,21 +205,35 @@ app.get('/api/choices/:username', async (req, res) => {
   }
 });
 
+// /api/upload-choices  — REPLACE MODE (overwrite)
 app.post('/api/upload-choices', async (req, res) => {
   const { username, timestamp, choices } = req.body;
 
-  if (!username || !timestamp || !choices || !Array.isArray(choices)) {
+  if (!username || !timestamp || !Array.isArray(choices)) {
     return res.status(400).send("❌ Eksik veya hatalı veri");
   }
 
   try {
-    await BatchChoice.create({ username, timestamp, choices });
-    res.status(200).send("✅ Tüm seçimler tek belge olarak yüklendi.");
+    const updated = await BatchChoice.findOneAndUpdate(
+      { username },
+      { $set: { timestamp, choices } },   // mevcut choices'ı tamamen değiştir
+      { new: true, upsert: true }         // yoksa oluştur (register kaçtıysa bile)
+    );
+
+    if (!updated) {
+      return res.status(404).send("❌ Kullanıcı için batchChoices kaydı bulunamadı");
+    }
+
+    res.status(200).json({ 
+      message: "✅ Seçimler güncellendi (overwrite)",
+      docId: updated._id
+    });
   } catch (err) {
-    console.error("Mongo yükleme hatası:", err);
-    res.status(500).send("❌ MongoDB kayıt hatası");
+    console.error("Mongo update hatası:", err);
+    res.status(500).send("❌ MongoDB update hatası");
   }
 });
+
 
 app.get('/api/delete-batchchoices', async (req, res) => {
   try {
@@ -626,4 +640,5 @@ app.get("/api/normalize-usernames", async (req, res) => {
     res.status(500).send("❌ Normalize sırasında hata");
   }
 });
+
 
