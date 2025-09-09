@@ -332,6 +332,12 @@ app.post('/api/insert-user', async (req, res) => {
     return res.status(400).send("❌ Kullanıcı adı ve şifre gerekli");
   }
 
+  // ❌ Türkçe karakter kontrolü
+  const turkishChars = /[çÇşŞıİöÖüÜğĞ]/;
+  if (turkishChars.test(username)) {
+    return res.status(400).send("❌ Kullanıcı adı Türkçe karakter içeremez (ç, ş, ı, ö, ü, ğ).");
+  }
+
   try {
     const existingUser = await User.findOne({ username });
     if (existingUser) {
@@ -346,6 +352,15 @@ app.post('/api/insert-user', async (req, res) => {
       password, // ⚠ hashlemeyi unutma
       reportPdfLink: reportPdfLink || null
     });
+
+    await newUser.save();
+    res.status(200).json({ message: "✅ Kullanıcı eklendi", user: newUser });
+
+  } catch (err) {
+    console.error("Insert hatası:", err);
+    res.status(500).send("❌ Sunucu hatası");
+  }
+});
 
     await newUser.save();
     res.status(200).json({ message: "✅ Kullanıcı eklendi", user: newUser });
@@ -640,5 +655,6 @@ app.get("/api/normalize-usernames", async (req, res) => {
     res.status(500).send("❌ Normalize sırasında hata");
   }
 });
+
 
 
