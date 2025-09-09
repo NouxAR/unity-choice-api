@@ -648,6 +648,44 @@ app.get("/api/normalize-usernames", async (req, res) => {
   }
 });
 
+// --- Scores Model (scores collection) ---
+const scoreSchema = new mongoose.Schema(
+  {
+    username: { type: String, required: true, unique: true },
+    // dizi veya obje; n8n'den nasıl gönderirsen onu tutar
+    scores: mongoose.Schema.Types.Mixed
+  },
+  { collection: "scores", timestamps: true }
+);
+const Score = mongoose.model("Score", scoreSchema);
 
+// --- POST /api/scores  (upsert) ---
+app.post("/api/scores", async (req, res) => {
+  try {
+    let { username, scores } = req.body;
 
+    if (!username || scores === undefined || scores === null) {
+      return res.status(400).json({ success: false, message: "username ve scores gerekli" });
+    }
 
+    // n8n bazen string JSON yollayabilir -> parse etmeyi dene
+    if (typeof scores === "string") {
+      try {
+        scores = JSON.parse(scores);
+      } catch {
+        return res.status(400).json({ success: false, message: "scores geçerli JSON değil" });
+      }
+    }
+
+    const doc = await Score.findOneAndUpdate(
+      { username },
+      { $set: { scores } },
+      { new: true, upsert: true }
+    );
+
+    return res.json({ success: true, message: "Skor kaydedildi", data: doc });
+  } catch (err) {
+    console.error("POST /api/scores hata:", err);
+    return res.status(500).json({ success: false, message: "Sunucu hatası" });
+  }
+});
