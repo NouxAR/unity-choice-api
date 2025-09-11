@@ -731,7 +731,7 @@ app.post("/api/get-reports", async (req, res) => {
   }
 });
 
-import express from "express";
+
 import axios from "axios";
 import pdfParse from "pdf-parse";
 import User from "./models/User.js"; // Mongo modelin
@@ -791,4 +791,5 @@ router.post("/api/collect-reports", async (req, res) => {
 });
 
 export default router;
+
 
