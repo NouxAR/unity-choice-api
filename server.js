@@ -703,3 +703,30 @@ app.get("/api/scores/:username", async (req, res) => {
     return res.status(500).json({ success: false, message: "Sunucu hatası" });
   }
 });
+
+// POST /api/get-reports
+// Body: { "usernames": ["sudenaz", "asrin", "semiha"] }
+app.post("/api/get-reports", async (req, res) => {
+  try {
+    const { usernames } = req.body;
+
+    if (!usernames || !Array.isArray(usernames) || usernames.length === 0) {
+      return res.status(400).json({ success: false, message: "❌ Geçersiz usernames array" });
+    }
+
+    // MongoDB'de find yap
+    const users = await User.find(
+      { username: { $in: usernames } },
+      { username: 1, reportPdfLink: 1, reportGeneratedAt: 1, _id: 0 }
+    );
+
+    res.json({
+      success: true,
+      count: users.length,
+      reports: users
+    });
+  } catch (err) {
+    console.error("🚨 Report fetch error:", err);
+    res.status(500).json({ success: false, message: "Sunucu hatası" });
+  }
+});
