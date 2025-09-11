@@ -730,3 +730,65 @@ app.post("/api/get-reports", async (req, res) => {
     res.status(500).json({ success: false, message: "Sunucu hatası" });
   }
 });
+
+import express from "express";
+import axios from "axios";
+import pdfParse from "pdf-parse";
+import User from "./models/User.js"; // Mongo modelin
+
+const router = express.Router();
+
+// Yeni endpoint: PDF raporlarını topla
+router.post("/api/collect-reports", async (req, res) => {
+  try {
+    const { usernames } = req.body;
+    if (!Array.isArray(usernames) || usernames.length === 0) {
+      return res.status(400).json({ error: "usernames must be a non-empty array" });
+    }
+
+    // 1. Mongo'dan kullanıcıların rapor linklerini çek
+    const users = await User.find({ username: { $in: usernames } });
+
+    if (users.length === 0) {
+      return res.status(404).json({ error: "No reports found for given usernames" });
+    }
+
+    // 2. PDF'leri indir ve text'e çevir
+    let reports = [];
+    for (const u of users) {
+      if (!u.reportPdfLink) continue;
+
+      try {
+        const pdfBuffer = (await axios.get(u.reportPdfLink, { responseType: "arraybuffer" })).data;
+        const pdfText = (await pdfParse(pdfBuffer)).text;
+
+        reports.push({
+          username: u.username,
+          text: pdfText
+        });
+      } catch (err) {
+        console.error(`PDF alınamadı: ${u.username}`, err.message);
+        reports.push({
+          username: u.username,
+          text: "[HATA: PDF indirilemedi]"
+        });
+      }
+    }
+
+    // 3. Textleri tek bir string halinde de gönderebilirsin
+    const combined = reports.map(r => `Öğrenci: ${r.username}\n${r.text}`).join("\n\n");
+
+    res.json({
+      success: true,
+      reports,
+      combined
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+export default router;
+
