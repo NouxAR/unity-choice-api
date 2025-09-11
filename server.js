@@ -730,3 +730,65 @@ app.post("/api/get-reports", async (req, res) => {
     res.status(500).json({ success: false, message: "Sunucu hatası" });
   }
 });
+
+const axios = require("axios");
+const pdfParse = require("pdf-parse");
+
+// POST /api/collect-reports
+// Body: { "usernames": ["sudenaz", "asrin", "semiha"] }
+app.post("/api/collect-reports", async (req, res) => {
+  try {
+    const { usernames } = req.body;
+
+    if (!usernames || !Array.isArray(usernames) || usernames.length === 0) {
+      return res.status(400).json({ success: false, message: "❌ Geçersiz usernames array" });
+    }
+
+    // MongoDB'den kullanıcı rapor linklerini çek
+    const users = await User.find(
+      { username: { $in: usernames } },
+      { username: 1, reportPdfLink: 1, _id: 0 }
+    );
+
+    if (users.length === 0) {
+      return res.status(404).json({ success: false, message: "❌ Rapor bulunamadı" });
+    }
+
+    let reports = [];
+
+    for (const u of users) {
+      if (!u.reportPdfLink) continue;
+
+      try {
+        const pdfBuffer = (await axios.get(u.reportPdfLink, { responseType: "arraybuffer" })).data;
+        const pdfText = (await pdfParse(pdfBuffer)).text;
+
+        reports.push({
+          username: u.username,
+          text: pdfText
+        });
+      } catch (err) {
+        console.error(`🚨 PDF alınamadı (${u.username}):`, err.message);
+        reports.push({
+          username: u.username,
+          text: "[HATA: PDF indirilemedi]"
+        });
+      }
+    }
+
+    // Tüm raporları tek stringe çevir
+    const combined = reports.map(r => `Öğrenci: ${r.username}\n${r.text}`).join("\n\n");
+
+    res.json({
+      success: true,
+      count: reports.length,
+      reports,
+      combined
+    });
+
+  } catch (err) {
+    console.error("🚨 Collect Reports Hatası:", err);
+    res.status(500).json({ success: false, message: "❌ Sunucu hatası" });
+  }
+});
+
