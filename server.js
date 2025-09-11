@@ -732,13 +732,11 @@ app.post("/api/get-reports", async (req, res) => {
 });
 
 
-import axios from "axios";
-import pdfParse from "pdf-parse";
-
-const router = express.Router();
+const axios = require("axios");
+const pdfParse = require("pdf-parse");
 
 // Yeni endpoint: PDF raporlarını topla
-router.post("/api/collect-reports", async (req, res) => {
+app.post("/api/collect-reports", async (req, res) => {
   try {
     const { usernames } = req.body;
     if (!Array.isArray(usernames) || usernames.length === 0) {
@@ -774,7 +772,7 @@ router.post("/api/collect-reports", async (req, res) => {
       }
     }
 
-    // 3. Textleri tek bir string halinde de gönderebilirsin
+    // 3. Textleri tek bir string halinde birleştir
     const combined = reports.map(r => `Öğrenci: ${r.username}\n${r.text}`).join("\n\n");
 
     res.json({
@@ -784,12 +782,12 @@ router.post("/api/collect-reports", async (req, res) => {
     });
 
   } catch (err) {
-    console.error(err);
+    console.error("🚨 Collect reports error:", err);
     res.status(500).json({ error: "Server error" });
   }
 });
 
-export default router;
+
 
 
 
